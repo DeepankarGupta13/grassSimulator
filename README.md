@@ -123,8 +123,8 @@ Each vertex moves using a sine-wave animation based on index and time:
 
 ### Why it works
 
--   `t` creates staggered motion\
--   `sin()` produces soft natural waves\
+-   `t` creates staggered motion
+-   `sin()` produces soft natural waves
 -   `uTime` drives continuous animation
 
 ------------------------------------------------------------------------
@@ -148,10 +148,10 @@ Produces glowing, lively-looking blades.
 
 Contributions are welcome!
 
-1.  Fork this repository\
-2.  Create a new branch\
-3.  Commit your changes with clear messages\
-4.  Push your branch\
+1.  Fork this repository
+2.  Create a new branch
+3.  Commit your changes with clear messages
+4.  Push your branch
 5.  Open a pull request
 
 ------------------------------------------------------------------------
@@ -159,7 +159,6 @@ Contributions are welcome!
 # 📬 Contact
 
 **Deepankar Gupta**\
-GitHub: **DeepankarGupta13**\
 Email: **deepankarsama@gmail.com**
 
 ------------------------------------------------------------------------
