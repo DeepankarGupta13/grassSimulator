@@ -62,12 +62,12 @@ export default class GrassField {
 
         const rotationY = this.grassIndexPropMap.get(i).rotationY;
         if (rotationY) matrix.makeRotationY(rotationY);
-  
+
         const position = this.grassIndexPropMap.get(i).position;
         matrix.setPosition(position.x, position.y, position.z);
       }
 
-      else matrix.makeScale(0.1,0.1,0.1); // Scale up by 10%
+      else matrix.makeScale(0.1, 0.1, 0.1); // Scale up by 10%
 
       outlineMesh.setMatrixAt(i, matrix);
     }
@@ -77,35 +77,97 @@ export default class GrassField {
 
   createGrassGeometry() {
     const grassGeometry = new THREE.BufferGeometry();
-    const numVertices = 15; // Number of vertices per grass blade
-    const slimScale = 10;
-    const vertices = new Float32Array(numVertices * 3); // 3 components (x, y, z) per vertex
-    const indices = []; // Indices to define the triangles
 
-    // Create a more detailed grass blade with 15 vertices
+    const numVertices = 15;     // Number of points along the blade's center line
+    const slimScale = 10;       // Controls how stretched the sine curve is (smoothness of bending)
+
+    // Each vertex has 3 components: x, y, z
+    const vertices = new Float32Array(numVertices * 3);
+
+    // Stores triangle index order (defines how vertices form the mesh surface)
+    const indices = [];
+
+    // ----------------------------------------------------------
+    // 1. GENERATE VERTICES
+    // ----------------------------------------------------------
     for (let i = 0; i < numVertices; i++) {
-      const t = i /((numVertices - 1) * slimScale); // Normalized height along the blade (0 to 1)
-      const y = Math.sin(t * slimScale * Math.PI); // Slight curve for the grass blade
-      const x = t * 0.6; // Height of the grass blade
-      const z = 0;
+      /**
+       * t is a normalized height factor along the blade.
+       * Instead of going from 0 → 1 in 15 steps,
+       * we divide further using slimScale = smoother curve.
+       *
+       * Example: instead of stepping 0 → 1 in 15 steps,
+       * we step 0 → 1 in 150 steps (very small increments).
+       */
+      const t = i / ((numVertices - 1) * slimScale);
 
-      // Set vertex positions
-      vertices[i * 3] = x;
+      /**
+       * y defines the vertical curve of the blade.
+       *
+       * We use a half sine wave:
+       * y = sin( t * slimScale * PI )
+       *
+       * This gives a natural grass-like arc:
+       * - bottom (i=0): y = 0
+       * - middle: y = highest point
+       * - top: y returns to 0 → slight bend downward
+       */
+      const y = Math.sin(t * slimScale * Math.PI);
+
+      /**
+       * x gives the blade a slight sideward sweep.
+       * As t increases, x slowly increases → blade leans sideways.
+       */
+      const x = t * 0.6;
+
+      const z = 0; // Flat in z-direction; a ribbon-like blade
+
+      // Store vertex position
+      vertices[i * 3 + 0] = x;
       vertices[i * 3 + 1] = y;
       vertices[i * 3 + 2] = z;
     }
 
-    for (let i = 0; i <= parseInt(numVertices / 2, 10); i++) {
+    // ----------------------------------------------------------
+    // 2. CREATE TRIANGLE INDICES (CONNECT THE VERTICES)
+    // ----------------------------------------------------------
+    /**
+     * We connect the vertices in a mirrored fashion:
+     *
+     * left side: i
+     * next left: i + 1
+     * right side: numVertices - i - 1
+     *
+     * This produces "diamond" shaped quads, split into triangles.
+     */
+    const midPoint = parseInt(numVertices / 2, 10);
+
+    for (let i = 0; i <= midPoint; i++) {
+      // First triangle (left → next left → mirrored right)
       indices.push(i, i + 1, numVertices - i - 1);
-      if (i != parseInt(numVertices / 2, 10))
-        indices.push(numVertices - i - 1, i + 1, numVertices - i - 2);
+
+      // Avoid repeating the center connection
+      if (i !== midPoint) {
+        // Second triangle (mirrored right → next left → next mirrored right)
+        indices.push(
+          numVertices - i - 1,
+          i + 1,
+          numVertices - i - 2
+        );
+      }
     }
 
-    // Set attributes for the geometry
+    // ----------------------------------------------------------
+    // 3. ASSIGN BUFFERS TO GEOMETRY
+    // ----------------------------------------------------------
+
+    // Set positions (typed array of floats)
     grassGeometry.setAttribute(
       "position",
       new THREE.BufferAttribute(vertices, 3)
     );
+
+    // Set how triangles are formed
     grassGeometry.setIndex(indices);
 
     return grassGeometry;
@@ -133,7 +195,7 @@ export default class GrassField {
 
       instancedMesh.setMatrixAt(i, matrix);
 
-      this.grassIndexPropMap.set(i, { position: {x, y, z}, scale: scale, rotationY: rotationY ? rotationY : 0});
+      this.grassIndexPropMap.set(i, { position: { x, y, z }, scale: scale, rotationY: rotationY ? rotationY : 0 });
     }
 
   }
