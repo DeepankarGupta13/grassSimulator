@@ -24,7 +24,7 @@ export default class App {
             groundWidth: 100, // Default width of the carton
             groundHeight: 100, // Default height of the carton
             windStrength: 0.5, // Default wind strength
-            grassRotate: false, // Default grass rotation
+            grassRotate: true, // Default grass rotation
         };
 
         // Initialize dat.GUI
@@ -36,7 +36,7 @@ export default class App {
         gui.add(cartonProperties, "noOfGrassBlades", 1, 1000000).name("Grass Blades").onChange(updateNoOfGrassBlades.bind(this));
         gui.add(cartonProperties, "windStrength", 0, 1).name("Wind Strength").onChange(updateWindStrength.bind(this));
         gui.add(cartonProperties, "groundVisible", true).name("Ground").onChange(updateGroundVisibility.bind(this));
-        gui.add(cartonProperties, "grassRotate", false).name("Grass Rotate").onChange(updateGrassRotation.bind(this));
+        gui.add(cartonProperties, "grassRotate", true).name("Grass Rotate").onChange(updateGrassRotation.bind(this));
 
         // Wrap updateGroundVisibility); to pass cartonProperties
         function updateGroundVisibility() {

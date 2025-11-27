@@ -7,7 +7,7 @@ export default class GrassField {
     this.height = height; // Height of the grass field
     this.numBlades = numBlades; // Number of grass blades
     this.windStrength = windStrength; // Strength of the wind effect
-    this.ifGrassRotate = false; // Rotate the grass blades
+    this.ifGrassRotate = true; // Rotate the grass blades
 
     // Initialize wind direction
     this.windDirection = new THREE.Vector2(1, 0); // Initial wind direction
@@ -231,7 +231,7 @@ export default class GrassField {
       vertexShader: this.grassVertexShader(), // Vertex shader for grass animation
       fragmentShader: this.grassFragmentShader(), // Fragment shader for grass color
       uniforms: {
-        time: { value: 0 }, // Time uniform for wind animation
+        time: { value: 1 }, // Time uniform for wind animation
         windStrength: { value: this.windStrength }, // Wind strength uniform
         windDirection: { value: new THREE.Vector2(1, 0) }, // Wind direction uniform
       },
@@ -266,16 +266,13 @@ export default class GrassField {
 
           // Calculate height percentage (normalized height along the blade)
           float heightPercent = pos.y;
-          
-          // Random lean for each grass blade (you can pass this as a uniform or generate it)
-          float randomLean = sin(time + pos.y) * 0.3; // Example random lean
-          
+
           // Calculate curve amount based on random lean and height percentage
-          float curveAmount = sin(randomLean * heightPercent);
+          float curveAmount = sin(time + pos.y) * heightPercent * 0.3;
 
           // noise for wind effect
-          float noiseSample = sin(((time*0.35) + pos.y));
-          
+          float noiseSample = (((time*0.35) + pos.y));
+
           curveAmount += noiseSample * windStrength;
 
           // Apply wind direction to the curve amount
